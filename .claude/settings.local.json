@@ -3,7 +3,9 @@
     "allow": [
       "Bash(nvm list:*)",
       "Bash(nvm use:*)",
-      "WebSearch"
+      "WebSearch",
+      "Skill(update-config)",
+      "Bash(claude mcp:*)"
     ]
   }
 }
