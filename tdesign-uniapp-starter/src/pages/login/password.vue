@@ -31,10 +31,12 @@
         v-model:value="form.password"
         placeholder="请输入密码"
         :type="showPassword ? 'text' : 'password'"
-        prefix-icon="lock-on"
         class="login-input"
         @change="onPasswordChange"
       >
+	    <template #prefix-icon>
+			<image src="/src/static/lock.png" style="width: 48rpx; height: 48rpx;"></image>
+	    </template>
         <template #suffix-icon>
           <view class="password-toggle" @click="togglePassword">
             <text v-if="showPassword" class="toggle-text">ABC</text>
@@ -45,14 +47,20 @@
 
       <!-- 记住我和忘记密码 -->
       <view class="form-options">
-        <t-checkbox v-model:value="rememberMe" label="记住我" class="agreement-checkbox" />
+		   <t-checkbox v-model:value="rememberMe" borderless class="agreement-radio" custom-style="padding: 0; padding-left: 16px; align-items: center;--td-checkbox-icon-size:34rpx;" >
+			   <template #label>
+			     <view class="agreement-text">
+			       <text>记住密码</text>
+			     </view>
+			   </template>
+			   </t-checkbox>
         <text class="forgot-link" @click="forgotPassword">忘记密码？</text>
       </view>
     </view>
 
     <!-- 协议同意 -->
     <view class="agreement-section">
-      <t-checkbox v-model:value="agreed" class="agreement-checkbox">
+      <t-checkbox v-model:value="agreed" class="agreement-radio" borderless custom-style="padding: 0;padding-left: 16px; align-items: center;--td-checkbox-icon-size:34rpx;"  >
         <template #label>
           <view class="agreement-text">
             <text>我已阅读并同意</text>
@@ -65,15 +73,17 @@
     </view>
 
     <!-- 登录按钮 -->
-    <t-button
-      class="login-btn"
-      :disabled="!canSubmit || isLoading"
-      :loading="isLoading"
-      block
-      @click="handleLogin"
-    >
-      {{ isLoading ? '登录中...' : '登录' }}
-    </t-button>
+	<view style="padding: 0 16px;">
+		<t-button
+		  class="login-btn"
+		  :disabled="!canSubmit || isLoading"
+		  :loading="isLoading"
+		  block
+		  @click="handleLogin"
+		>
+		  {{ isLoading ? '登录中...' : '登录' }}
+		</t-button>
+	</view>
 
     <!-- 其他登录方式 -->
     <view class="other-login">
@@ -252,6 +262,12 @@ initRememberedAccount();
 </script>
 
 <style lang="less" scoped>
+	
+	  page {
+	    --td-checkbox-border-color: #ff0000;
+	    --td-checkbox-icon-size: 40rpx;
+	  }
+	  
 .password-login-page {
   padding: 0 48rpx;
   min-height: 100vh;
@@ -302,7 +318,7 @@ initRememberedAccount();
     .toggle-text {
       font-size: 24rpx;
       font-weight: 500;
-      color: #0052d9;
+    color: rgba(0, 0, 0, 0.5);
       letter-spacing: 2rpx;
     }
   }
@@ -311,26 +327,62 @@ initRememberedAccount();
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 16rpx;
+    margin-top: 26rpx;
     margin-bottom: 8rpx;
- 
+
+    :deep(.agreement-radio) {
+      --td-radio-icon-size: 11rpx;
+      --td-radio-label-font-size: 15rpx;
+      --td-radio-label-color: rgba(0, 0, 0, 0.6);
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
+
+      &::after {
+        display: none !important;
+      }
+
+      .t-radio__content-wrap {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+      }
+
+      .t-cell {
+        border-bottom: none !important;
+
+        &::after {
+          display: none !important;
+        }
+      }
+    }
 
     .forgot-link {
       font-size: 28rpx;
-      color: #0052d9;
+    color: rgba(0, 0, 0, 0.5);
     }
+	
+	.agreement-text {
+	  font-size: 28rpx;
+	  color: rgba(0, 0, 0, 0.5);
+	  line-height: 1.6;
+	  flex: 1;
+	
+	  .link {
+	    color: #0052d9;
+	  }
+	}
   }
 }
 
 // 协议区域
 .agreement-section  {
-  margin-bottom: 48rpx;
-  margin-top: 60rpx;
+  margin-bottom: 28rpx;
+  margin-top: 120px;
 
-  :deep(.agreement-checkbox) {
-    --td-checkbox-icon-size: 11rpx;
-    --td-checkbox-label-font-size: 15rpx;
-    --td-checkbox-label-color: rgba(0, 0, 0, 0.5);
+  :deep(.agreement-radio) {
+    --td-radio-icon-size: 11rpx;
+    --td-radio-label-font-size: 15rpx;
+    --td-radio-label-color: rgba(0, 0, 0, 0.5);
     align-items: flex-start;
     border-bottom: none !important;
     padding-bottom: 0 !important;
@@ -340,12 +392,12 @@ initRememberedAccount();
       display: none !important;
     }
 
-    .t-checkbox__content-wrap {
+    .t-radio__content-wrap {
       border-bottom: none !important;
       padding-bottom: 0 !important;
     }
 
-    .t-checkbox__label {
+    .t-radio__label {
       margin-left: 12rpx;
     }
 
@@ -359,7 +411,7 @@ initRememberedAccount();
   }
 
   .agreement-text {
-    font-size: 28rpx;
+    font-size: 24rpx;
     color: rgba(0, 0, 0, 0.5);
     line-height: 1.6;
     flex: 1;
@@ -374,26 +426,31 @@ initRememberedAccount();
 .login-btn {
   --td-button-border-radius: 48rpx;
   --td-button-font-weight: 500;
+  --td-button-primary-bg-color: linear-gradient(135deg, #003bb3 0%, #003399 100%);
+
 
   margin-bottom: 32rpx;
 
   :deep(.t-button) {
     height: 96rpx;
     font-size: 32rpx;
-    background: linear-gradient(135deg, #003bb3 0%, #003399 100%) !important;
     border-color: transparent !important;
     box-shadow: 0 8rpx 24rpx rgba(0, 82, 217, 0.4);
+
+    &--primary {
+      background: linear-gradient(135deg, #003bb3 0%, #003399 100%) !important;
+    }
+
+    &--primary&--disabled {
+      background: #e0e0e0 !important;
+      box-shadow: none !important;
+      color: #999 !important;
+    }
   }
 
-  &:not(:deep(.t-button--disabled)):active {
+  &:active {
     opacity: 0.9;
     transform: scale(0.98);
-  }
-
-  :deep(.t-button--disabled) {
-    background: #e0e0e0 !important;
-    box-shadow: none !important;
-    color: #999 !important;
   }
 }
 
@@ -407,11 +464,12 @@ initRememberedAccount();
   .text-btn {
     font-size: 28rpx;
     color: #07c160;
-    padding: 20rpx 40rpx;
+    padding: 40rpx 40rpx;
 
     &:active {
       opacity: 0.7;
     }
   }
 }
+ 
 </style>
