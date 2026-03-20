@@ -48,6 +48,8 @@
         v-model:value="bindForm.phone"
         placeholder="请输入手机号"
         type="number"
+        maxlength="11"
+        clearable
         class="bind-input"
       />
 
@@ -61,7 +63,8 @@
       <view class="popup-tips">绑定后可用手机号+密码登录</view>
 
       <t-button
-        class="custom-login-btn bind-btn"
+        class="bind-btn"
+        theme="primary"
         :disabled="!canBind || isBinding"
         :loading="isBinding"
         block
@@ -82,7 +85,7 @@ import {
 
 const isLoading = ref(false);
 const isBinding = ref(false);
-const showBindPhone = ref(true);
+const showBindPhone = ref(false);
 
 // 微信登录临时数据
 const wxLoginData = ref({
@@ -99,9 +102,9 @@ const bindForm = ref({
 
 // 是否可以绑定手机号
 const canBind = computed(() => {
-  const phoneRegex = /^[1][3-9][0-9]{9}$/;
+  const phoneRegex = /^1[3-9]\d{9}$/;
   const hasPhone = phoneRegex.test(bindForm.value.phone);
-  const hasPassword = bindForm.value.password.length >= 6;
+  const hasPassword = bindForm.value.password.length >= 6; 
   return hasPhone && hasPassword && !isBinding.value;
 });
 
@@ -132,8 +135,7 @@ const onGetPhoneNumber = (e: any) => {
     uni.login({
       provider: 'weixin',
       success: (loginRes) => {
-        wxLoginData.value.code = loginRes.code;
-		console.log("loginRes = ",loginRes);
+        wxLoginData.value.code = loginRes.code; 
         handleWechatLogin();
       },
       fail: () => {
@@ -412,6 +414,28 @@ const mockBindPhone = (data: { phone: string; password: string }): Promise<any> 
     height: 88rpx !important;
     line-height: 88rpx !important;
     font-size: 30rpx !important;
+    --td-button-border-radius: 44rpx;
+    --td-button-font-weight: 500;
+
+    :deep(.t-button) {
+      transition: all 0.3s ease;
+
+      &--primary {
+        background: linear-gradient(135deg, #0052d9 0%, #0046bb 100%) !important;
+        box-shadow: 0 8rpx 24rpx rgba(0, 82, 217, 0.4);
+      }
+
+      &--primary&--disabled {
+        background: #e0e0e0 !important;
+        box-shadow: none !important;
+        color: #999 !important;
+      }
+    }
+
+    &:not(.t-button--disabled):deep(.t-button):active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
   }
 
   .popup-tips {
