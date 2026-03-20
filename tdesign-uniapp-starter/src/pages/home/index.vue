@@ -41,43 +41,18 @@
       <!-- 收益统计卡片 -->
       <view class="stats-section">
         <view class="stats-grid">
-          <view class="stat-card" @click="goToStatistics">
-            <view class="stat-icon coin">
-              <t-icon name="money" size="20" color="#fff" />
+          <view
+            v-for="item in statItems"
+            :key="item.valueKey"
+            class="stat-card"
+            @click="goToStatistics"
+          >
+            <view :class="['stat-icon', item.iconClass]">
+              <t-icon :name="item.icon" size="20" color="#fff" />
             </view>
             <view class="stat-info">
-              <text class="stat-label">今日投币</text>
-              <text class="stat-value">{{ formatAmount(dashboardData.todayCoinAmount) }}</text>
-            </view>
-          </view>
-
-          <view class="stat-card" @click="goToStatistics">
-            <view class="stat-icon ad">
-              <t-icon name="chart-pie" size="20" color="#fff" />
-            </view>
-            <view class="stat-info">
-              <text class="stat-label">广告收益</text>
-              <text class="stat-value">{{ formatAmount(dashboardData.adRevenue) }}</text>
-            </view>
-          </view>
-
-          <view class="stat-card" @click="goToStatistics">
-            <view class="stat-icon total-coin">
-              <t-icon name="coins" size="20" color="#fff" />
-            </view>
-            <view class="stat-info">
-              <text class="stat-label">累计投币</text>
-              <text class="stat-value">{{ formatAmount(dashboardData.totalCoinAmount) }}</text>
-            </view>
-          </view>
-
-          <view class="stat-card" @click="goToStatistics">
-            <view class="stat-icon total-revenue">
-              <t-icon name="wallet" size="20" color="#fff" />
-            </view>
-            <view class="stat-info">
-              <text class="stat-label">累计收益</text>
-              <text class="stat-value">{{ formatAmount(dashboardData.totalRevenue) }}</text>
+              <text class="stat-label">{{ item.label }}</text>
+              <text class="stat-value">{{ formatAmount(dashboardData[item.valueKey as keyof typeof dashboardData]) }}</text>
             </view>
           </view>
         </view>
@@ -154,40 +129,19 @@
       <view class="quick-actions">
         <view class="section-title">快捷操作</view>
         <view class="action-list">
-          <view class="action-item" @click="goToDevices">
+          <view
+            v-for="item in actionItems"
+            :key="item.handler"
+            class="action-item"
+            @click="handleAction(item.handler)"
+          >
             <view class="action-left">
-              <view class="action-icon device-list">
-                <t-icon name="list" size="18" color="#fff" />
+              <view :class="['action-icon', item.iconClass]">
+                <t-icon :name="item.icon" size="18" color="#fff" />
               </view>
               <view class="action-info">
-                <text class="action-title">设备列表</text>
-                <text class="action-desc">查看所有设备状态</text>
-              </view>
-            </view>
-            <t-icon name="chevron-right" size="16" color="#ccc" />
-          </view>
-
-          <view class="action-item" @click="goToMall">
-            <view class="action-left">
-              <view class="action-icon mall">
-                <t-icon name="shop" size="18" color="#fff" />
-              </view>
-              <view class="action-info">
-                <text class="action-title">积分商城</text>
-                <text class="action-desc">兑换商品</text>
-              </view>
-            </view>
-            <t-icon name="chevron-right" size="16" color="#ccc" />
-          </view>
-
-          <view class="action-item" @click="goToOrders">
-            <view class="action-left">
-              <view class="action-icon orders">
-                <t-icon name="file-text" size="18" color="#fff" />
-              </view>
-              <view class="action-info">
-                <text class="action-title">订单管理</text>
-                <text class="action-desc">查看订单记录</text>
+                <text class="action-title">{{ item.title }}</text>
+                <text class="action-desc">{{ item.desc }}</text>
               </view>
             </view>
             <t-icon name="chevron-right" size="16" color="#ccc" />
@@ -267,12 +221,9 @@ import request from '@/api/request';
 // 系统信息
 const statusBarHeight = ref(20);
 const navBarHeight = ref(44);
-const capsuleHeight = ref(32);
 
 // 计算头部padding（考虑状态栏）
-const headerPadding = computed(() => {
-  return 16; // 基础padding
-});
+const headerPadding = 16;
 
 // 时间筛选
 const timeRange = ref('today');
@@ -282,7 +233,7 @@ const timeOptions = [
   { label: '本周', value: 'week' },
   { label: '本月', value: 'month' },
   { label: '日历选择', value: 'custom' },
-];
+] as const;
 
 const currentTimeLabel = computed(() => {
   if (timeRange.value === 'custom' && dateRange.value.length === 2) {
@@ -296,17 +247,25 @@ const showCalendar = ref(false);
 const dateRange = ref<string[]>([]);
 const tempDateRange = ref<number[]>([]);
 
-// 格式化日期为短格式 MM-DD
+// 格式化日期为短格式 MM-DD（使用本地时间避免时区问题）
 const formatDateShort = (dateStr: string) => {
   const date = new Date(dateStr);
-  return `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}-${day}`;
 };
 
-// 计算日期差（天数）
+// 计算天数差
 const getDaysDiff = (startDate: string, endDate: string) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
   return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+};
+
+// 验证日期范围是否超过60天
+const validateDateRange = (startTs: number, endTs: number): boolean => {
+  const daysDiff = Math.floor((endTs - startTs) / (1000 * 60 * 60 * 24));
+  return daysDiff <= 60;
 };
 
 // 日历范围限制 - 前后一年都可以选，但最多选60天
@@ -336,13 +295,27 @@ const dashboardData = ref({
   announcements: [] as string[],
 });
 
+// 统计数据项配置
+const statItems = [
+  { label: '今日投币', valueKey: 'todayCoinAmount', icon: 'money', iconClass: 'coin' },
+  { label: '广告收益', valueKey: 'adRevenue', icon: 'chart-pie', iconClass: 'ad' },
+  { label: '累计投币', valueKey: 'totalCoinAmount', icon: 'coins', iconClass: 'total-coin' },
+  { label: '累计收益', valueKey: 'totalRevenue', icon: 'wallet', iconClass: 'total-revenue' },
+];
+
+// 快捷操作项配置
+const actionItems = [
+  { title: '设备列表', desc: '查看所有设备状态', icon: 'list', iconClass: 'device-list', handler: 'goToDevices' },
+  { title: '积分商城', desc: '兑换商品', icon: 'shop', iconClass: 'mall', handler: 'goToMall' },
+  { title: '订单管理', desc: '查看订单记录', icon: 'file-text', iconClass: 'orders', handler: 'goToOrders' },
+];
+
 // 初始化系统信息
 const initSystemInfo = () => {
   const systemInfo = uni.getSystemInfoSync();
   // #ifdef MP-WEIXIN
   const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
   statusBarHeight.value = systemInfo.statusBarHeight || 20;
-  capsuleHeight.value = menuButtonInfo.height || 32;
   // 导航栏高度 = 状态栏高度 + (胶囊按钮高度 + 上下间距)
   navBarHeight.value = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
   // #endif
@@ -417,18 +390,13 @@ const selectTime = (value: string) => {
 // 日历选择中（临时存储，限制60天）
 const onDateSelect = (e: any) => {
   const { value } = e;
-  if (value && value.length === 2) {
-    // 计算时间戳差值转换为天数
-    const daysDiff = Math.floor((value[1] - value[0]) / (1000 * 60 * 60 * 24));
-    if (daysDiff > 60) {
-      uni.showToast({
-        title: '最多选择60天',
-        icon: 'none',
-      });
-      // 只保留开始日期
-      tempDateRange.value = [value[0]];
-      return;
-    }
+  if (value && value.length === 2 && !validateDateRange(value[0], value[1])) {
+    uni.showToast({
+      title: '最多选择60天',
+      icon: 'none',
+    });
+    tempDateRange.value = [value[0]];
+    return;
   }
   tempDateRange.value = value;
 };
@@ -443,17 +411,22 @@ const onDateConfirm = (e: any) => {
     });
     return;
   }
-  // 将时间戳转为日期字符串
-  const dateStrs = value.map((ts: number) => new Date(ts).toISOString().split('T')[0]);
-  const daysDiff = getDaysDiff(dateStrs[0], dateStrs[1]);
-  if (daysDiff > 60) {
+  if (!validateDateRange(value[0], value[1])) {
     uni.showToast({
       title: '最多选择60天',
       icon: 'none',
     });
     return;
   }
-  dateRange.value = dateStrs;
+  // 使用本地时间转换日期字符串
+  const toLocalDateString = (ts: number) => {
+    const d = new Date(ts);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  dateRange.value = value.map((ts: number) => toLocalDateString(ts));
   timeRange.value = 'custom';
   tempDateRange.value = [];
   showCalendar.value = false;
@@ -535,6 +508,16 @@ const goToOrders = () => {
     title: '订单管理开发中',
     icon: 'none',
   });
+};
+
+// 统一处理快捷操作
+const handleAction = (handler: string) => {
+  const handlers: Record<string, () => void> = {
+    goToDevices,
+    goToMall,
+    goToOrders,
+  };
+  handlers[handler]?.();
 };
 
 onMounted(() => {
