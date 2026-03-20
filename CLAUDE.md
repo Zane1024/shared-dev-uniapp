@@ -63,7 +63,6 @@ pnpm install
 
 ### UI 组件
 - `@tdesign-uniapp` - 优先使用的UI，通过use Context7查询最新文档进行导入使用。
-- `@dcloudio/uni-ui` – 官方的 uni‑app UI 组件库（通过 babel-plugin-import 包含）。组件按需自动导入。
 
 ## 开发注意事项
 

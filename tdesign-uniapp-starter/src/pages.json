@@ -58,7 +58,13 @@
 			"root": "pages/login",
 			"pages": [
 				{
-					"path": "login",
+					"path": "index",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "password",
 					"style": {
 						"navigationStyle": "custom"
 					}
@@ -117,6 +123,7 @@
 		"backgroundColor": "#f3f3f3"
 	},
 	"easycom": {
+		"autoscan": true,
 		"custom": {
 			"^t-(.*)": "@tdesign/uniapp/$1/$1.vue"
 		}
@@ -150,7 +157,11 @@
 			},
 			{
 				"name": "登录",
-				"path": "pages/login/login"
+				"path": "pages/login/index"
+			},
+			{
+				"name": "账号密码登录",
+				"path": "pages/login/password"
 			},
 			{
 				"name": "验证码登录",

@@ -198,7 +198,7 @@ onShow(async () => {
 
 const onLogin = () => {
   uni.navigateTo({
-    url: '/pages/login/login',
+    url: '/pages/login/index',
   });
 };
 

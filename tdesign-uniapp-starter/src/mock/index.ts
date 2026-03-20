@@ -190,6 +190,31 @@ export function initMock() {
     },
   };
 
+  // 首页仪表板数据
+  mockStore['/home/dashboard'] = {
+    code: 200,
+    message: '请求成功',
+    data: {
+      // 今日销售数据
+      todaySales: 2580.5,
+      // 今日投币金额
+      todayCoinAmount: 1860.0,
+      // 广告收益
+      adRevenue: 720.5,
+      // 累计投币总额
+      totalCoinAmount: 45680.0,
+      // 累计总收益
+      totalRevenue: 52360.5,
+      // 公告列表
+      announcements: [
+        '系统公告：新功能上线，欢迎使用设备管理平台',
+        '活动通知：新用户注册即送100积分',
+        '维护通知：系统将于本周日凌晨2点进行维护',
+        '升级公告：APP版本已更新，请升级至最新版本',
+      ],
+    },
+  };
+
   // 拦截 uni.request
   const originalRequest = uni.request;
   // @ts-ignore

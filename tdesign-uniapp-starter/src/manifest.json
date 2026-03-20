@@ -68,6 +68,9 @@
         },
         "lazyCodeLoading" : "requiredComponents",
         "usingComponents" : true,
+        "optimization" : {
+            "subPackages" : true
+        },
         "rendererOptions" : {
             "skyline" : {
                 "disableABTest" : true,
