@@ -17,9 +17,9 @@
         class="wechat-auth-btn"
         open-type="getPhoneNumber"
         @getphonenumber="onGetPhoneNumber"
+		custom-style="color: white;background-color: #01C260;"
         block
       >
-        <t-icon name="logo-wechat-stroke" size="40rpx" />
         <text>微信一键登录</text>
       </t-button>
       <!-- #endif -->
@@ -82,7 +82,7 @@ import {
 
 const isLoading = ref(false);
 const isBinding = ref(false);
-const showBindPhone = ref(false);
+const showBindPhone = ref(true);
 
 // 微信登录临时数据
 const wxLoginData = ref({
@@ -133,6 +133,7 @@ const onGetPhoneNumber = (e: any) => {
       provider: 'weixin',
       success: (loginRes) => {
         wxLoginData.value.code = loginRes.code;
+		console.log("loginRes = ",loginRes);
         handleWechatLogin();
       },
       fail: () => {
@@ -416,6 +417,7 @@ const mockBindPhone = (data: { phone: string; password: string }): Promise<any> 
   .popup-tips {
     font-size: 24rpx;
     color: rgba(0, 0, 0, 0.5);
+	margin-top: 40px;
     margin-bottom: 32rpx;
     text-align: center;
   }
