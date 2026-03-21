@@ -113,7 +113,7 @@ const handleCenterClick = () => {
 
 .tab-bar-inner {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   height: @tab-bar-height;
   padding: 0 60rpx;
@@ -124,12 +124,16 @@ const handleCenterClick = () => {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
 
   &.left,
   &.right {
     :deep(.t-tab-bar-item) {
-      padding: 8rpx 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -178,6 +182,7 @@ const handleCenterClick = () => {
       font-size: 22rpx;
       color: #0052d4;
       font-weight: 500;
+      margin-bottom: 70rpx;
     }
   }
 
