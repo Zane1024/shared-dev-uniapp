@@ -150,12 +150,13 @@ const handleCenterClick = () => {
       height: 88rpx;
       border-radius: 50%;
       background: #fff;
-      border: 10rpx solid #0052d4;
+      // border: 10rpx solid #0052d4;
+      border: 10rpx solid #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 6rpx;
-      box-shadow: 0 10rpx 30rpx rgba(0, 82, 212, 0.35);
+      // box-shadow: 0 10rpx 30rpx rgba(0, 82, 212, 0.35);
 
       .icon-wrapper {
         width: 80rpx;
