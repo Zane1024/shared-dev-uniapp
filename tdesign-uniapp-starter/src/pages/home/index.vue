@@ -25,7 +25,7 @@
             <view class="sales-title">
               <text class="title-text">今日销售</text>
             </view>
-            <view class="time-filter" @tap="showTimePicker">
+            <view class="time-filter" @click="showTimePopup = true">
               <text class="filter-text">{{ currentTimeLabel }}</text>
               <t-icon name="chevron-down" size="12" color="#fff" />
             </view>
@@ -153,6 +153,24 @@
       <view class="bottom-placeholder"></view>
     </t-pull-down-refresh>
 
+    <!-- 日期区间选择器 -->
+    <t-calendar
+      v-model:visible="showCalendar"
+      :min-date="minDate"
+      :max-date="maxDate"
+      :value="tempDateRange"
+      @confirm="onDateConfirm"
+      @select="onDateSelect"
+      class="custom-calendar"
+    >
+      <template #title>
+        <view class="calendar-header">
+          <text class="calendar-title">选择日期范围</text>
+          <text class="calendar-subtitle">最多可选择60天</text>
+        </view>
+      </template>
+    </t-calendar>
+
     <!-- 时间选择器弹窗 -->
     <t-popup v-model:visible="showTimePopup" placement="bottom">
       <view class="time-picker">
@@ -175,24 +193,6 @@
       </view>
     </t-popup>
 
-    <!-- 日期区间选择器 -->
-    <t-calendar
-      v-model:visible="showCalendar"
-      :min-date="minDate"
-      :max-date="maxDate"
-      :value="tempDateRange"
-      @confirm="onDateConfirm"
-      @select="onDateSelect"
-      class="custom-calendar"
-    >
-      <template #title>
-        <view class="calendar-header">
-          <text class="calendar-title">选择日期范围</text>
-          <text class="calendar-subtitle">最多可选择60天</text>
-        </view>
-      </template>
-    </t-calendar>
-
     <!-- 公告详情弹窗 -->
     <t-popup v-model:visible="showNoticeDialog" placement="center">
       <view class="notice-dialog">
@@ -208,7 +208,7 @@
         </view>
       </view>
     </t-popup>
-
+	<view style="height: 100px;"></view>
     <CustomTabBar />
   </view>
 </template>
@@ -357,11 +357,6 @@ const onPullDownRefresh = async () => {
   isRefreshing.value = true;
   await fetchDashboardData();
   isRefreshing.value = false;
-};
-
-// 显示时间选择器
-const showTimePicker = () => {
-  showTimePopup.value = true;
 };
 
 // 选择时间选项

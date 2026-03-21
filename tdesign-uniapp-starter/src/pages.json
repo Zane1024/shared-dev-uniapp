@@ -9,8 +9,7 @@
 		{
 			"path": "pages/message/index",
 			"style": {
-				"navigationStyle": "custom",
-				"disableScroll": true
+				"navigationStyle": "custom"
 			}
 		},
 		{
