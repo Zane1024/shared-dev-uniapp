@@ -154,22 +154,10 @@
     </t-pull-down-refresh>
 
     <!-- 日期区间选择器 -->
-    <t-calendar
+    <DateRangePicker
       v-model:visible="showCalendar"
-      :min-date="minDate"
-      :max-date="maxDate"
-      :value="tempDateRange" 
-      :confirm="onDateConfirm"
-      :select="onDateSelect"
-      type="range" 
-    >
-      <!-- <template #title>
-        <view class="calendar-header">
-          <text class="calendar-title">选择日期范围</text>
-          <text class="calendar-subtitle">单次最多30天</text>
-        </view>
-      </template> -->
-    </t-calendar>
+      @confirm="onDateConfirm"
+    />
 
     <!-- 时间选择器弹窗 -->
     <t-popup v-model:visible="showTimePopup" placement="bottom">
@@ -216,6 +204,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
+import DateRangePicker from '@/components/date-range-picker.vue';
 import request from '@/api/request';
 
 // 系统信息
@@ -242,11 +231,6 @@ const currentTimeLabel = computed(() => {
   return timeOptions.find(opt => opt.value === timeRange.value)?.label || '今日';
 });
 
-// 日历区间选择
-const showCalendar = ref(false);
-const dateRange = ref<string[]>([]);
-const tempDateRange = ref<number[]>([]);
-
 // 格式化日期为短格式 MM-DD（使用本地时间避免时区问题）
 const formatDateShort = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -255,24 +239,9 @@ const formatDateShort = (dateStr: string) => {
   return `${month}-${day}`;
 };
 
-// 计算天数差
-const getDaysDiff = (startDate: string, endDate: string) => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-};
-
-// 验证日期范围是否超过30天
-const validateDateRange = (startTs: number, endTs: number): boolean => {
-  const daysDiff = Math.floor((endTs - startTs) / (1000 * 60 * 60 * 24));
-  return daysDiff <= 30;
-};
-
-// 日历范围限制 - 前后一年都可以选，但最多选60天
-const today = new Date();
-const maxDate = ref(new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000).getTime());
-const minDate = ref(new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).getTime());
-
+// 日期范围选择
+const showCalendar = ref(false);
+const dateRange = ref<string[]>([]);
 
 // 公告弹框
 const showNoticeDialog = ref(false);
@@ -363,20 +332,8 @@ const onPullDownRefresh = async () => {
 // 选择时间选项
 const selectTime = (value: string) => {
   if (value === 'custom') {
-  //   // 打开日历选择
+    // 打开日历选择
     showTimePopup.value = false;
-  //   // 重置日期范围为前后一年（打开日历时可自由选择开始日期）
-    const todayTime = new Date().getTime();
-    const yearMs = 365 * 24 * 60 * 60 * 1000;
-    minDate.value = todayTime - yearMs;
-    maxDate.value = todayTime;
-     // 如果没有选择过日期，默认选中今天
-     if (!dateRange.value || dateRange.value.length === 0) {
-       tempDateRange.value = [todayTime];
-     } else {
-       // 将字符串日期转为时间戳
-       tempDateRange.value = dateRange.value.map(d => new Date(d).getTime());
-     }
     showCalendar.value = true;
     return;
   }
@@ -387,57 +344,10 @@ const selectTime = (value: string) => {
   fetchDashboardData();
 };
 
-// 日历选择中（临时存储，以点击日期为基准前后30天）
-const onDateSelect = (e: any) => {
-  console.log("onDateSelect",e);
-  
-  const { value } = e;
-  if (value && value.length === 1) {
-    // 用户刚选择了开始日期，以该日期为基准限制前后30天
-    const baseDate = value[0];
-    const dayMs = 30 * 24 * 60 * 60 * 1000;
-    minDate.value = baseDate - dayMs;
-    maxDate.value = baseDate + dayMs;
-  }
-  tempDateRange.value = value || [];
-};
-
-// 日历确认选择
-const onDateConfirm = (e: any) => {
-  console.log("eeeeeeeeeee",e);
-  
-  const { value } = e;
-  if (!value || value.length < 2) {
-    uni.showToast({
-      title: '请选择完整的日期范围',
-      icon: 'none',
-    });
-    return;
-  }
-  if (!validateDateRange(value[0], value[1])) {
-    uni.showToast({
-      title: '最多选择30天',
-      icon: 'none',
-    });
-    return;
-  }
-  // 使用本地时间转换日期字符串
-  const toLocalDateString = (ts: number) => {
-    const d = new Date(ts);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-  dateRange.value = value.map((ts: number) => toLocalDateString(ts));
+// 日历确认选择（由 DateRangePicker 组件触发）
+const onDateConfirm = (dateStrings: string[]) => {
+  dateRange.value = dateStrings;
   timeRange.value = 'custom';
-  tempDateRange.value = [];
-  // 重置日期范围为前后一年
-  const todayTime = new Date().getTime();
-  const yearMs = 365 * 24 * 60 * 60 * 1000;
-  minDate.value = todayTime - yearMs;
-  maxDate.value = todayTime + yearMs;
-  showCalendar.value = false;
   fetchDashboardData();
 };
 
@@ -960,26 +870,6 @@ onMounted(() => {
 
 :deep(.t-calendar__header) {
   border-radius: 24rpx 24rpx 0 0;
-}
-
-// 日历头部
-.calendar-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32rpx;
-
-  .calendar-title {
-    font-size: 32rpx;
-    font-weight: 600;
-    color: @gy1;
-  }
-
-  .calendar-subtitle {
-    font-size: 24rpx;
-    color: @gy2;
-    margin-top: 8rpx;
-  }
 }
 
 // 公告弹框
