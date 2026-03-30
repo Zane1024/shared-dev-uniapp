@@ -126,3 +126,58 @@ const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
 navBarHeight.value = 44;
 // #endif
 ```
+
+## 开发规范
+
+### 组件封装检查清单
+
+**封装前检查**：
+- [ ] 是否已有类似组件？（搜索 `src/components/` 目录）
+- [ ] 是否是多个页面共用？
+- [ ] 是否会频繁修改？
+
+**封装后操作**：
+- [ ] 更新 `MEMORY.md` 中的封装组件记录
+- [ ] 更新本文件（CLAUDE.md）中的组件表格
+- [ ] 确保旧组件已删除，避免遗留
+- [ ] 检查是否有遗漏的关联文件
+
+### Git 提交规范
+
+**提交前检查**：
+- [ ] 是否有遗漏的关联文件？（如删除旧组件时是否已移除引用）
+- [ ] 提交信息是否清晰描述变更？
+- [ ] 是否有 console.log 或调试代码未清除？
+- [ ] ESLint 检查是否通过？
+
+**提交信息格式**：
+```
+<类型>: <简短描述>
+
+<详细说明（可选）>
+```
+
+类型：`feat` 新功能 | `fix` 修复 | `refactor` 重构 | `docs` 文档 | `style` 样式 | `perf` 性能
+
+### 避免重复封装
+
+**新建组件前先搜索**：
+1. 搜索 `src/components/` 目录
+2. 搜索 `src/utils/` 目录
+3. 查看 `MEMORY.md` 中的封装记录
+
+### 样式规范
+
+- 优先使用 `variable.less` 中的变量
+- 组件样式使用 scoped
+- 颜色使用 LESS 变量引用（如 `@brand7-normal`）
+- 间距使用 rpx 单位
+
+### 工具函数规范
+
+| 场景 | 存放位置 | 示例 |
+|------|---------|------|
+| 格式化函数 | `utils/format.ts` | formatMoney, formatDate |
+| 页面跳转 | `utils/navigate.ts` | navigateTo, scanCode |
+| 系统信息 | `utils/system.ts` | useSystemInfo |
+| 业务逻辑 | 页面内部或 store | - |
