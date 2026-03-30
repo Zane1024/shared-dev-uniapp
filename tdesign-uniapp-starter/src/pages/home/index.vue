@@ -160,26 +160,13 @@
     />
 
     <!-- 时间选择器弹窗 -->
-    <t-popup v-model:visible="showTimePopup" placement="bottom">
-      <view class="time-picker">
-        <view class="picker-header">
-          <text class="picker-title">选择时间范围</text>
-          <t-icon name="close" size="20" color="#999" @click="showTimePopup = false" />
-        </view>
-        <view class="picker-options">
-          <view
-            v-for="option in timeOptions"
-            :key="option.value"
-            class="picker-item"
-            :class="{ active: timeRange === option.value }"
-            @click="selectTime(option.value)"
-          >
-            <text>{{ option.label }}</text>
-            <t-icon v-if="timeRange === option.value" name="check" size="16" color="#0052d9" />
-          </view>
-        </view>
-      </view>
-    </t-popup>
+    <TimePicker
+      v-model:visible="showTimePopup"
+      v-model="timeRange"
+      :options="timeOptions"
+      title="选择时间范围"
+      @confirm="selectTime"
+    />
 
     <!-- 公告详情弹窗 -->
     <t-popup v-model:visible="showNoticeDialog" placement="center">
@@ -205,6 +192,7 @@
 import { ref, onMounted, computed } from 'vue';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
 import DateRangePicker from '@/components/date-range-picker.vue';
+import TimePicker from '@/components/time-picker.vue';
 import request from '@/api/request';
 
 // 系统信息
@@ -333,12 +321,9 @@ const onPullDownRefresh = async () => {
 const selectTime = (value: string) => {
   if (value === 'custom') {
     // 打开日历选择
-    showTimePopup.value = false;
     showCalendar.value = true;
     return;
   }
-  timeRange.value = value;
-  showTimePopup.value = false;
   // 清空自定义日期范围
   dateRange.value = [];
   fetchDashboardData();
@@ -817,46 +802,6 @@ onMounted(() => {
       .action-desc {
         font-size: 24rpx;
         color: @gy2;
-      }
-    }
-  }
-}
-
-// 时间选择器
-.time-picker {
-  background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
-
-  .picker-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 32rpx;
-    border-bottom: 1rpx solid #f5f5f5;
-
-    .picker-title {
-      font-size: 32rpx;
-      font-weight: 600;
-      color: @gy1;
-    }
-  }
-
-  .picker-options {
-    padding: 16rpx 0;
-
-    .picker-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 28rpx 32rpx;
-      font-size: 30rpx;
-      color: @gy1;
-
-      &.active {
-        color: @brand7-normal;
-        background: rgba(0, 82, 217, 0.05);
       }
     }
   }
