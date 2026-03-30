@@ -153,19 +153,11 @@
       <view class="bottom-placeholder"></view>
     </t-pull-down-refresh>
 
-    <!-- 日期区间选择器 -->
-    <DateRangePicker
-      v-model:visible="showCalendar"
-      @confirm="onDateConfirm"
-    />
-
-    <!-- 时间选择器弹窗 -->
-    <TimePicker
+    <!-- 日期时间选择器 -->
+    <DateTimePicker
       v-model:visible="showTimePopup"
       v-model="timeRange"
-      :options="timeOptions"
-      title="选择时间范围"
-      @confirm="selectTime"
+      @confirm="onTimeConfirm"
     />
 
     <!-- 公告详情弹窗 -->
@@ -191,8 +183,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
-import DateRangePicker from '@/components/date-range-picker.vue';
-import TimePicker from '@/components/time-picker.vue';
+import DateTimePicker from '@/components/date-time-picker.vue';
 import request from '@/api/request';
 
 // 系统信息
@@ -205,31 +196,23 @@ const headerPadding = 16;
 // 时间筛选
 const timeRange = ref('today');
 const showTimePopup = ref(false);
-const timeOptions = [
-  { label: '今日', value: 'today' },
-  { label: '本周', value: 'week' },
-  { label: '本月', value: 'month' },
-  { label: '日历选择', value: 'custom' },
-] as const;
+const dateRange = ref<string[]>([]);
 
 const currentTimeLabel = computed(() => {
   if (timeRange.value === 'custom' && dateRange.value.length === 2) {
     return `${formatDateShort(dateRange.value[0])} - ${formatDateShort(dateRange.value[1])}`;
   }
-  return timeOptions.find(opt => opt.value === timeRange.value)?.label || '今日';
+  const labels: Record<string, string> = { today: '今日', week: '本周', month: '本月', custom: '日历选择' };
+  return labels[timeRange.value] || '今日';
 });
 
-// 格式化日期为短格式 MM-DD（使用本地时间避免时区问题）
+// 格式化日期为短格式 MM-DD
 const formatDateShort = (dateStr: string) => {
   const date = new Date(dateStr);
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${month}-${day}`;
 };
-
-// 日期范围选择
-const showCalendar = ref(false);
-const dateRange = ref<string[]>([]);
 
 // 公告弹框
 const showNoticeDialog = ref(false);
@@ -317,22 +300,14 @@ const onPullDownRefresh = async () => {
   isRefreshing.value = false;
 };
 
-// 选择时间选项
-const selectTime = (value: string) => {
-  if (value === 'custom') {
-    // 打开日历选择
-    showCalendar.value = true;
-    return;
+// 选择时间选项（由 DateTimePicker 组件触发）
+const onTimeConfirm = (result: { timeRange: string; dateRange?: string[] }) => {
+  const { timeRange: range, dateRange: dates } = result;
+  if (range === 'custom' && dates) {
+    dateRange.value = dates;
+  } else {
+    dateRange.value = [];
   }
-  // 清空自定义日期范围
-  dateRange.value = [];
-  fetchDashboardData();
-};
-
-// 日历确认选择（由 DateRangePicker 组件触发）
-const onDateConfirm = (dateStrings: string[]) => {
-  dateRange.value = dateStrings;
-  timeRange.value = 'custom';
   fetchDashboardData();
 };
 
