@@ -67,6 +67,7 @@
     "@tdesign/uniapp": "^0.7.3",
     "@tdesign/uniapp-chat": "^0.2.1",
     "t-comm": "^3.0.25",
+    "tdesign-mcp-server": "^0.2.2",
     "tdesign-uniapp": "^0.5.3",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9"

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "tdesign": {
+      "command": "node",
+      "args": ["./node_modules/tdesign-mcp-server/dist/index.js"]
+    }
+  }
+}

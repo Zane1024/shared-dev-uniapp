@@ -8,7 +8,13 @@
       "Bash(claude mcp:*)",
       "mcp__context7__query-docs",
       "mcp__context7__resolve-library-id",
-      "WebFetch(domain:minimax-algeng-chat-tts.oss-cn-wulanchabu.aliyuncs.com)"
+      "WebFetch(domain:minimax-algeng-chat-tts.oss-cn-wulanchabu.aliyuncs.com)",
+      "Bash(dir \"D:\\\\JavaWork\\\\GitProject\\\\shared-dev-uniapp\\\\tdesign-uniapp-starter\\\\src\")",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "WebFetch(domain:tdesign.tencent.com)",
+      "Bash(npm install:*)",
+      "Bash(pnpm add:*)"
     ]
   }
 }

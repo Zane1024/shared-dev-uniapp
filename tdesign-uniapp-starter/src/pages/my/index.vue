@@ -15,7 +15,7 @@
           <template #left-icon>
             <t-avatar
               :image="personalInfo.image"
-              size="large"
+              size="medium"
             />
           </template>
           <template #description>
@@ -59,7 +59,7 @@
           <template #left-icon>
             <t-avatar
               icon="user"
-              size="128rpx"
+              size="96rpx"
             />
           </template>
         </t-cell>
@@ -79,18 +79,18 @@
 
     <view class="my-service">
       <view class="my-service--tips">
-        推荐服务
+        常用功能
       </view>
       <t-grid
         :column="4"
         class="my-service__list"
       >
         <t-grid-item
-          v-for="item in service"
-          :key="item.name"
+          v-for="item in commonFunctionList"
+          :key="item.type"
           class="my-service__list-item"
           :text="item.name"
-          :image="item.image"
+          :icon="item.icon"
           @click="onEleClick(item)"
         />
       </t-grid>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
 import { onShow } from '@dcloudio/uni-app';
 
@@ -130,12 +130,6 @@ interface PersonalInfo {
   city: string;
 }
 
-interface ServiceItem {
-  name: string;
-  image: string;
-  url: string;
-}
-
 interface GridItem {
   name: string;
   icon: string;
@@ -151,7 +145,15 @@ interface SettingItem {
 }
 
 const isLoad = ref(false);
-const service = ref<ServiceItem[]>([]);
+const commonFunctionList = ref([
+  { name: '门店管理', icon: 'shop', type: 'shop' },
+  { name: '流量查询', icon: 'search', type: 'flow' },
+  { name: '赠送记录', icon: 'gift', type: 'gift' },
+  { name: '二维码', icon: 'qrcode', type: 'qrcode' },
+  { name: '投诉列表', icon: 'message', type: 'complaint' },
+  { name: '我的协议', icon: 'file', type: 'agreement' },
+  { name: '积分商城', icon: 'shopping', type: 'mall' },
+]);
 const personalInfo = ref<PersonalInfo>({
   name: '',
   image: '',
@@ -171,20 +173,10 @@ const settingList = ref<SettingItem[]>([
   { name: '设置', icon: 'setting', type: 'setting', url: '/pages/setting/index' },
 ]);
 
-const getServiceList = () => {
-  request('/api/getServiceList').then((res: any) => {
-    service.value = res.data.service;
-  });
-};
-
 const getPersonalInfo = async () => {
   const res: any = await request('/api/genPersonalInfo');
   return res.data;
 };
-
-onMounted(() => {
-  getServiceList();
-});
 
 onShow(async () => {
   const token = uni.getStorageSync('access_token');
@@ -263,7 +255,7 @@ const onEleClick = (item: any) => {
 
     // .grid-class
     :deep(.t-grid) {
-      margin-top: 40rpx;
+      margin-top: 24rpx;
     }
 
     .grid-item :deep(.t-grid-item__content) {
@@ -274,7 +266,7 @@ const onEleClick = (item: any) => {
       border-right: 1px solid #e7e7e7;
     }
 
-    --td-spacer-1: 32rpx;
+    --td-spacer-1: 24rpx;
 
     &__person {
       .name {
@@ -301,24 +293,24 @@ const onEleClick = (item: any) => {
 
   &-service {
     border-radius: 24rpx;
-    margin: 32rpx;
+    margin: 24rpx;
     padding-bottom: 8rpx;
     overflow: hidden;
 
     &__list-item {
       :deep(.t-grid-item__content) {
-        padding-bottom: 16rpx !important;
+        padding-bottom: 8rpx !important;
       }
       :deep(.t-grid-item__text) {
-        height: 40rpx !important;
+        height: 20rpx !important;
       }
     }
 
     &--tips {
       height: 44rpx;
       line-height: 44rpx;
-      padding-left: 40rpx;
-      margin-top: 32rpx;
+      padding-left: 32rpx;
+      margin-top: 24rpx;
       color: #000000e6;
       font-size: 28rpx;
       font-weight: 600;

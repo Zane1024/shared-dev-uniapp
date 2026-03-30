@@ -113,6 +113,34 @@
 					}
 				}
 			]
+		},
+		{
+			"root": "pages/venue",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "add",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				}
+			]
+		},
+		{
+			"root": "pages/device-list",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				}
+			]
 		}
 	],
 	"globalStyle": {
@@ -177,6 +205,14 @@
 			{
 				"name": "发布",
 				"path": "pages/release/index"
+			},
+			{
+				"name": "场地管理",
+				"path": "pages/venue/index"
+			},
+			{
+				"name": "设备列表",
+				"path": "pages/device-list/index"
 			}
 		]
 	}

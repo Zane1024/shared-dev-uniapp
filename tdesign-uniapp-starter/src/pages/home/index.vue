@@ -158,17 +158,17 @@
       v-model:visible="showCalendar"
       :min-date="minDate"
       :max-date="maxDate"
-      :value="tempDateRange"
-      @confirm="onDateConfirm"
-      @select="onDateSelect"
-      class="custom-calendar"
+      :value="tempDateRange" 
+      :confirm="onDateConfirm"
+      :select="onDateSelect"
+      type="range" 
     >
-      <template #title>
+      <!-- <template #title>
         <view class="calendar-header">
           <text class="calendar-title">选择日期范围</text>
-          <text class="calendar-subtitle">最多可选择60天</text>
+          <text class="calendar-subtitle">单次最多30天</text>
         </view>
-      </template>
+      </template> -->
     </t-calendar>
 
     <!-- 时间选择器弹窗 -->
@@ -262,16 +262,17 @@ const getDaysDiff = (startDate: string, endDate: string) => {
   return Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 };
 
-// 验证日期范围是否超过60天
+// 验证日期范围是否超过30天
 const validateDateRange = (startTs: number, endTs: number): boolean => {
   const daysDiff = Math.floor((endTs - startTs) / (1000 * 60 * 60 * 24));
-  return daysDiff <= 60;
+  return daysDiff <= 30;
 };
 
 // 日历范围限制 - 前后一年都可以选，但最多选60天
 const today = new Date();
 const maxDate = ref(new Date(today.getTime() + 365 * 24 * 60 * 60 * 1000).getTime());
 const minDate = ref(new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).getTime());
+
 
 // 公告弹框
 const showNoticeDialog = ref(false);
@@ -362,16 +363,20 @@ const onPullDownRefresh = async () => {
 // 选择时间选项
 const selectTime = (value: string) => {
   if (value === 'custom') {
-    // 打开日历选择
+  //   // 打开日历选择
     showTimePopup.value = false;
-    // 如果没有选择过日期，默认选中今天
-    if (!dateRange.value || dateRange.value.length === 0) {
-      const todayTime = new Date().getTime();
-      tempDateRange.value = [todayTime];
-    } else {
-      // 将字符串日期转为时间戳
-      tempDateRange.value = dateRange.value.map(d => new Date(d).getTime());
-    }
+  //   // 重置日期范围为前后一年（打开日历时可自由选择开始日期）
+    const todayTime = new Date().getTime();
+    const yearMs = 365 * 24 * 60 * 60 * 1000;
+    minDate.value = todayTime - yearMs;
+    maxDate.value = todayTime;
+     // 如果没有选择过日期，默认选中今天
+     if (!dateRange.value || dateRange.value.length === 0) {
+       tempDateRange.value = [todayTime];
+     } else {
+       // 将字符串日期转为时间戳
+       tempDateRange.value = dateRange.value.map(d => new Date(d).getTime());
+     }
     showCalendar.value = true;
     return;
   }
@@ -382,22 +387,25 @@ const selectTime = (value: string) => {
   fetchDashboardData();
 };
 
-// 日历选择中（临时存储，限制60天）
+// 日历选择中（临时存储，以点击日期为基准前后30天）
 const onDateSelect = (e: any) => {
+  console.log("onDateSelect",e);
+  
   const { value } = e;
-  if (value && value.length === 2 && !validateDateRange(value[0], value[1])) {
-    uni.showToast({
-      title: '最多选择60天',
-      icon: 'none',
-    });
-    tempDateRange.value = [value[0]];
-    return;
+  if (value && value.length === 1) {
+    // 用户刚选择了开始日期，以该日期为基准限制前后30天
+    const baseDate = value[0];
+    const dayMs = 30 * 24 * 60 * 60 * 1000;
+    minDate.value = baseDate - dayMs;
+    maxDate.value = baseDate + dayMs;
   }
-  tempDateRange.value = value;
+  tempDateRange.value = value || [];
 };
 
 // 日历确认选择
 const onDateConfirm = (e: any) => {
+  console.log("eeeeeeeeeee",e);
+  
   const { value } = e;
   if (!value || value.length < 2) {
     uni.showToast({
@@ -408,7 +416,7 @@ const onDateConfirm = (e: any) => {
   }
   if (!validateDateRange(value[0], value[1])) {
     uni.showToast({
-      title: '最多选择60天',
+      title: '最多选择30天',
       icon: 'none',
     });
     return;
@@ -424,6 +432,11 @@ const onDateConfirm = (e: any) => {
   dateRange.value = value.map((ts: number) => toLocalDateString(ts));
   timeRange.value = 'custom';
   tempDateRange.value = [];
+  // 重置日期范围为前后一年
+  const todayTime = new Date().getTime();
+  const yearMs = 365 * 24 * 60 * 60 * 1000;
+  minDate.value = todayTime - yearMs;
+  maxDate.value = todayTime + yearMs;
   showCalendar.value = false;
   fetchDashboardData();
 };
@@ -447,9 +460,8 @@ const goToStatistics = () => {
 
 // 跳转到场地管理
 const goToVenue = () => {
-  uni.showToast({
-    title: '场地管理开发中',
-    icon: 'none',
+  uni.navigateTo({
+    url: '/pages/venue/index',
   });
 };
 
@@ -483,9 +495,8 @@ const bindDevice = () => {
 
 // 跳转到设备管理
 const goToDevices = () => {
-  uni.showToast({
-    title: '设备管理开发中',
-    icon: 'none',
+  uni.navigateTo({
+    url: '/pages/device-list/index',
   });
 };
 
