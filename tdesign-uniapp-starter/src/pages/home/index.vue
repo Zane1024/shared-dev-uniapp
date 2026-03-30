@@ -33,7 +33,7 @@
 
           <view class="sales-amount">
             <text class="currency">¥</text>
-            <text class="amount">{{ formatAmount(dashboardData.todaySales) }}</text>
+            <text class="amount">{{ formatMoney(dashboardData.todaySales) }}</text>
           </view>
         </view>
       </view>
@@ -52,7 +52,7 @@
             </view>
             <view class="stat-info">
               <text class="stat-label">{{ item.label }}</text>
-              <text class="stat-value">{{ formatAmount(dashboardData[item.valueKey as keyof typeof dashboardData]) }}</text>
+              <text class="stat-value">{{ formatMoney(dashboardData[item.valueKey as keyof typeof dashboardData]) }}</text>
             </view>
           </view>
         </view>
@@ -176,10 +176,12 @@ import CustomTabBar from '@/components/custom-tab-bar.vue';
 import DateTimePicker from '@/components/date-time-picker.vue';
 import NoticeDialog from '@/components/notice-dialog.vue';
 import request from '@/api/request';
+import { useSystemInfo } from '@/utils/system';
+import { formatMoney, formatDateShort } from '@/utils/format';
+import { navigateTo, scanCode } from '@/utils/navigate';
 
 // 系统信息
-const statusBarHeight = ref(20);
-const navBarHeight = ref(44);
+const { statusBarHeight, navBarHeight } = useSystemInfo();
 
 // 计算头部padding（考虑状态栏）
 const headerPadding = 16;
@@ -196,14 +198,6 @@ const currentTimeLabel = computed(() => {
   const labels: Record<string, string> = { today: '今日', week: '本周', month: '本月', custom: '日历选择' };
   return labels[timeRange.value] || '今日';
 });
-
-// 格式化日期为短格式 MM-DD
-const formatDateShort = (dateStr: string) => {
-  const date = new Date(dateStr);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${month}-${day}`;
-};
 
 // 公告弹框
 const showNoticeDialog = ref(false);
@@ -241,32 +235,6 @@ const actionItems = [
   { title: '积分商城', desc: '兑换商品', icon: 'shop', iconClass: 'mall', handler: 'goToMall' },
   { title: '订单管理', desc: '查看订单记录', icon: 'file-text', iconClass: 'orders', handler: 'goToOrders' },
 ];
-
-// 初始化系统信息
-const initSystemInfo = () => {
-  const systemInfo = uni.getSystemInfoSync();
-  // #ifdef MP-WEIXIN
-  const menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-  statusBarHeight.value = systemInfo.statusBarHeight || 20;
-  // 导航栏高度 = 状态栏高度 + (胶囊按钮高度 + 上下间距)
-  navBarHeight.value = (menuButtonInfo.top - systemInfo.statusBarHeight) * 2 + menuButtonInfo.height;
-  // #endif
-
-  // #ifndef MP-WEIXIN
-  statusBarHeight.value = systemInfo.statusBarHeight || 20;
-  navBarHeight.value = 44;
-  // #endif
-
-};
-
-// 格式化金额
-const formatAmount = (amount: number) => {
-  if (!amount && amount !== 0) return '0.00';
-  return amount.toLocaleString('zh-CN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
 
 // 获取仪表板数据
 const fetchDashboardData = async () => {
@@ -314,51 +282,40 @@ const showNoticePopup = () => {
 
 // 跳转到经营统计
 const goToStatistics = () => {
-  uni.navigateTo({
-    url: '/pages/data-center/index',
-  });
+  navigateTo('/pages/data-center/index');
 };
 
 // 跳转到场地管理
 const goToVenue = () => {
-  uni.navigateTo({
-    url: '/pages/venue/index',
-  });
+  navigateTo('/pages/venue/index');
 };
 
 // 绑定设备（扫码）
-const bindDevice = () => {
-  uni.scanCode({
-    success: (res) => {
-      console.log('扫码结果:', res);
-      uni.showModal({
-        title: '扫描成功',
-        content: `设备码: ${res.result}`,
-        confirmText: '确认绑定',
-        success: (modalRes) => {
-          if (modalRes.confirm) {
-            uni.showToast({
-              title: '绑定成功',
-              icon: 'success',
-            });
-          }
-        },
-      });
-    },
-    fail: () => {
-      uni.showToast({
-        title: '扫码取消',
-        icon: 'none',
-      });
-    },
-  });
+const bindDevice = async () => {
+  try {
+    const res = await scanCode();
+    console.log('扫码结果:', res);
+    uni.showModal({
+      title: '扫描成功',
+      content: `设备码: ${res.result}`,
+      confirmText: '确认绑定',
+      success: (modalRes) => {
+        if (modalRes.confirm) {
+          uni.showToast({
+            title: '绑定成功',
+            icon: 'success',
+          });
+        }
+      },
+    });
+  } catch {
+    // 扫码取消，不做处理
+  }
 };
 
 // 跳转到设备管理
 const goToDevices = () => {
-  uni.navigateTo({
-    url: '/pages/device-list/index',
-  });
+  navigateTo('/pages/device-list/index');
 };
 
 // 跳转到积分商城
@@ -388,7 +345,6 @@ const handleAction = (handler: string) => {
 };
 
 onMounted(() => {
-  initSystemInfo();
   fetchDashboardData();
 });
 </script>
