@@ -161,20 +161,10 @@
     />
 
     <!-- 公告详情弹窗 -->
-    <t-popup v-model:visible="showNoticeDialog" placement="center">
-      <view class="notice-dialog">
-        <view class="dialog-header">
-          <t-icon name="notification" size="24" color="#ff6b6b" />
-          <text class="dialog-title">公告详情</text>
-        </view>
-        <view class="dialog-content">
-          <text class="notice-content-text">{{ currentNotice }}</text>
-        </view>
-        <view class="dialog-footer">
-          <t-button theme="primary" size="medium" block @click="showNoticeDialog = false">我知道了</t-button>
-        </view>
-      </view>
-    </t-popup>
+    <NoticeDialog
+      v-model:visible="showNoticeDialog"
+      :content="currentNotice"
+    />
 	<view style="height: 100px;"></view>
     <CustomTabBar />
   </view>
@@ -184,6 +174,7 @@
 import { ref, onMounted, computed } from 'vue';
 import CustomTabBar from '@/components/custom-tab-bar.vue';
 import DateTimePicker from '@/components/date-time-picker.vue';
+import NoticeDialog from '@/components/notice-dialog.vue';
 import request from '@/api/request';
 
 // 系统信息
@@ -790,46 +781,6 @@ onMounted(() => {
 
 :deep(.t-calendar__header) {
   border-radius: 24rpx 24rpx 0 0;
-}
-
-// 公告弹框
-.notice-dialog {
-  background: #fff;
-  border-radius: 24rpx;
-  width: 560rpx;
-  padding: 48rpx 40rpx;
-
-  .dialog-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16rpx;
-    margin-bottom: 32rpx;
-
-    .dialog-title {
-      font-size: 32rpx;
-      font-weight: 600;
-      color: @gy1;
-    }
-  }
-
-  .dialog-content {
-    margin-bottom: 40rpx;
-
-    .notice-content-text {
-      font-size: 28rpx;
-      color: @gy1;
-      line-height: 1.6;
-      text-align: center;
-      word-break: break-all;
-    }
-  }
-
-  .dialog-footer {
-    :deep(.t-button) {
-      border-radius: 12rpx;
-    }
-  }
 }
 
 .bottom-placeholder {
