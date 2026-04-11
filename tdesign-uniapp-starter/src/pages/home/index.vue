@@ -178,7 +178,7 @@ import NoticeDialog from '@/components/notice-dialog.vue';
 import request from '@/api/request';
 import { useSystemInfo } from '@/utils/system';
 import { formatMoney, formatDateShort } from '@/utils/format';
-import { navigateTo, scanCode } from '@/utils/navigate';
+import { navigateTo } from '@/utils/navigate';
 
 // 系统信息
 const { statusBarHeight, navBarHeight } = useSystemInfo();
@@ -291,26 +291,8 @@ const goToVenue = () => {
 };
 
 // 绑定设备（扫码）
-const bindDevice = async () => {
-  try {
-    const res = await scanCode();
-    console.log('扫码结果:', res);
-    uni.showModal({
-      title: '扫描成功',
-      content: `设备码: ${res.result}`,
-      confirmText: '确认绑定',
-      success: (modalRes) => {
-        if (modalRes.confirm) {
-          uni.showToast({
-            title: '绑定成功',
-            icon: 'success',
-          });
-        }
-      },
-    });
-  } catch {
-    // 扫码取消，不做处理
-  }
+const bindDevice = () => {
+  navigateTo('/pages/device-bind/index');
 };
 
 // 跳转到设备管理

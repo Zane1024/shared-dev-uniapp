@@ -141,6 +141,17 @@
 					}
 				}
 			]
+		},
+		{
+			"root": "pages/device-bind",
+			"pages": [
+				{
+					"path": "index",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				}
+			]
 		}
 	],
 	"globalStyle": {
@@ -213,6 +224,10 @@
 			{
 				"name": "设备列表",
 				"path": "pages/device-list/index"
+			},
+			{
+				"name": "设备绑定",
+				"path": "pages/device-bind/index"
 			}
 		]
 	}
